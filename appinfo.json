@@ -1,0 +1,25 @@
+{
+    "appKeys": {
+        "status": 0,
+        "x-axis": 1,
+        "y-axis": 2,
+        "z-axis": 3
+    },
+    "capabilities": [
+        ""
+    ],
+    "companyName": "david@fekke.com",
+    "longName": "WatchBot",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "sdkVersion": "2",
+    "shortName": "WatchBot",
+    "uuid": "003993c8-9ce7-411f-921c-10310eb2742f",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
