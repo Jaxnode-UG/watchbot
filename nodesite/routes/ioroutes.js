@@ -7,7 +7,7 @@ var express = require('express'),
 	accessToken = process.env.SPARKACCESSTOKEN; //process.env.SPARKACCESSTOKEN
 
 var httpsOptions = {
-	hostname: 'api.spark.io',
+	hostname: 'api.particle.io',
 	port: 443,
 	path: '/v1/devices/' + process.env.ZEDDEVICE + '/sumocar', //process.env.ZEDDEVICE
 	method: 'POST',
@@ -24,6 +24,9 @@ var rightServo = 0;
 var timerId;
 var lastUpdated;
 
+/**
+ * This function converts the left and right power settings to values between 0 - 180 for continuous motion servos. 
+ */
 function convertLRValuesToLRServo(motorObject) {
   var left = 90, right = 90;
   left = (motorObject.L + 100) * 0.9;
@@ -34,6 +37,9 @@ function convertLRValuesToLRServo(motorObject) {
   };
 }
 
+/**
+ * This function sends commands to the api.particle.com cloud service 
+ */
 function callSparkService(postData) {
 	var post_data = postData;
 	httpsOptions.headers['Content-Length'] = post_data.length;
@@ -62,18 +68,18 @@ function callSparkService(postData) {
  * This function converts the accelerometer data into Servo motor inputs 
  */
 function getServoPower(x, y) {
-  if (x > 1000) {
-    x = 1000;
-  }
-  if (x < -1000) {
-    x = -1000;
-  }
-  if (y > 1000) {
-    y = 1000;
-  }
-  if (y < -1000) {
-    y = -1000;
-  }
+	if (x > 1000) {
+		x = 1000;
+	}
+	if (x < -1000) {
+		x = -1000;
+	}
+	if (y > 1000) {
+		y = 1000;
+	}
+	if (y < -1000) {
+		y = -1000;
+	}
   
 	var right = y / 10, left = y / 10, diff = 0;
 	right -=  (x/10);
@@ -98,20 +104,25 @@ function getServoPower(x, y) {
 	return { "L": left, "R": right };
 }
 
-function particleServiceTimer(){
+/**
+ * This function runs inside a setInterval to rate limit the calls to the particle function 
+ */
+function particleServiceTimer() {
 	var post_data = querystring.stringify({
-    		'access_token': accessToken,
-    		'params': leftServo + ',' + rightServo
-	  });
-      callSparkService(post_data);
-	  console.log('Sending to spark service.');
-	  if (Date.now() - lastUpdated > 5000) {
-		  clearInterval(timerId);
-		  timerId = null;
-	  }
+		'access_token': accessToken,
+		'params': leftServo + ',' + rightServo
+	});
+	callSparkService(post_data);
+	console.log('Sending to spark service.');
+	if (Date.now() - lastUpdated > 5000) {
+		clearInterval(timerId);
+		timerId = null;
+	}
 }
 
-
+/**
+ * Module constructor for the io routes 
+ */
 module.exports = function(io) {
     var router = express.Router();
 
